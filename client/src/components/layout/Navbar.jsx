@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import {
@@ -30,6 +30,13 @@ const Navbar = () => {
     { name: "Create", path: "/create", icon: <PlusSquare size={18} /> },
     { name: "Profile", path: "/profile", icon: <User size={18} /> },
   ];
+
+//   useEffect(() => {
+//   const handleClick = () => setDropdownOpen(false);
+//   window.addEventListener("click", handleClick);
+
+//   return () => window.removeEventListener("click", handleClick);
+// }, []);
 
   // 🚪 logout
   const handleLogout = async () => {

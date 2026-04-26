@@ -24,7 +24,7 @@ const uploadPost = asyncHandler(async (req, res) => {
   }
 
   const post = await Post.create({
-    image: uploadedImage.url, // ✅ consistent
+    image: uploadedImage.secure_url, 
     caption: caption || "",
     owner: req.user._id,
   });

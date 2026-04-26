@@ -184,39 +184,34 @@ const getUserFeeds = asyncHandler(async (req, res) => {
 });
 
 //like
-// const toggleLike = asyncHandler(async (req, res) => {
-//   const { postId } = req.params;
-//   const userId = req.user._id;
+const toggleLike = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { postId } = req.params;
 
-//   if (!mongoose.Types.ObjectId.isValid(postId)) {
-//     throw new ApiError(400, "Invalid post id");
-//   }
+  const post = await Post.findById(postId);
 
-//   const post = await Post.findById(postId);
-//   if (!post) throw new ApiError(404, "Post not found");
+  if (!post) {
+    throw new ApiError(404, "Post not found");
+  }
 
-//   const alreadyLiked = post.likes.some(
-//     (id) => id.toString() === userId.toString()
-//   );
+  const isLiked = post.likes.includes(userId);
 
-//   if (alreadyLiked) {
-//     // unlike
-//     post.likes = post.likes.filter(
-//       (id) => id.toString() !== userId.toString()
-//     );
-//   } else {
-//     // like
-//     post.likes.push(userId);
-//   }
+  if (isLiked) {
+    // unlike
+    post.likes.pull(userId);
+  } else {
+    // like
+    post.likes.push(userId);
+  }
 
-//   await post.save();
+  await post.save();
 
-//   return res.status(200).json(
-//     new ApiResponse(200, {
-//       likesCount: post.likes.length,
-//       isLiked: !alreadyLiked,
-//     }, "Toggled like")
-//   );
-// });
+  return res.status(200).json(
+    new ApiResponse(200, {
+      liked: !isLiked,
+      likesCount: post.likes.length,
+    }, "Like toggled")
+  );
+});
 
-export { uploadPost, feeds, getUserFeeds  };
+export { uploadPost, feeds, getUserFeeds ,toggleLike };

@@ -2,7 +2,8 @@ import { Router } from "express";
 import {
   uploadPost,
   feeds,
-  getUserFeeds
+  getUserFeeds,
+  toggleLike
 } from "../controllers/post.controller.js";
 
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -24,6 +25,7 @@ router.get("/", verifyJWT, feeds);
 // 👤 My posts
 router.get("/me", verifyJWT, getUserFeeds);
 
-// router.patch("/:postId/like", verifyJWT, toggleLike);
+//Likes
+router.post("/:postId/like", verifyJWT, toggleLike);
 
 export default router;

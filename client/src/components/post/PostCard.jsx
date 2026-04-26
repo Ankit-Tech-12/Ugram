@@ -1,114 +1,83 @@
-import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 
+import {
+  toggleLikeLocal,
+  toggleLikePost,
+} from "../../features/post/postSlice";
+
 const PostCard = ({ post }) => {
-  // 🧠 Initial state from backend
-  const [liked, setLiked] = useState(post?.isLiked || false);
-  const [likesCount, setLikesCount] = useState(post?.likesCount || 0);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
-  // ❤️ Optimistic Like Handler
-  const handleLike = async () => {
-    if (loading) return; // prevent multiple clicks
+  const handleLike = () => {
+    if (!post?._id) return;
 
-    setLoading(true);
+    // ⚡ optimistic update
+    dispatch(toggleLikeLocal(post._id));
 
-    // save previous state (for rollback)
-    const prevLiked = liked;
-
-    // 🟢 Optimistic UI update
-    setLiked(!liked);
-    setLikesCount((prev) =>
-      prevLiked ? prev - 1 : prev + 1
-    );
-
-    try {
-      // 👉 simulate API (replace later)
-      await new Promise((res) => setTimeout(res, 500));
-
-      // 👉 later:
-      // await axios.post(`/api/posts/${post._id}/like`);
-
-    } catch (error) {
-      // 🔴 rollback if API fails
-      setLiked(prevLiked);
-      setLikesCount((prev) =>
-        prevLiked ? prev + 1 : prev - 1
-      );
-    } finally {
-      setLoading(false);
-    }
+    // 🔥 backend sync
+    dispatch(toggleLikePost(post._id));
   };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      className="
-        bg-card p-4 rounded-2xl
-        border border-border
-        shadow-lg
-      "
+      whileHover={{ scale: 1.01 }}
+      className="bg-card p-4 rounded-2xl border border-border shadow-lg transition"
     >
-      {/* 🧑 User Info */}
+      {/* 👤 User */}
       <div className="flex items-center gap-3 mb-3">
         <img
-          src={post?.owner?.profileImage}
-          alt="profile"
-          className="w-10 h-10 rounded-full object-cover"
+          src={post.owner?.profileImage || "/default-avatar.png"}
+          alt="user"
+          className="w-10 h-10 rounded-full object-cover border border-border"
         />
-
         <p className="font-medium text-sm sm:text-base">
-          {post?.owner?.username}
+          {post.owner?.username || "unknown"}
         </p>
       </div>
 
-      {/* 📸 Post Image */}
-      <div className="w-full h-60 sm:h-72 rounded-xl overflow-hidden mb-3">
+      {/* 📸 Image */}
+      <div className="relative w-full h-60 rounded-xl overflow-hidden mb-3 group">
         <img
-          src={post?.image}
+          src={post.image}
           alt="post"
           className="w-full h-full object-cover"
         />
+
+        {/* subtle hover overlay */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
       </div>
 
-      {/* ❤️ Actions */}
-      <div className="flex items-center gap-4 mb-2">
-
-        {/* ❤️ Like Button */}
+      {/* ❤️ Like */}
+      <div className="flex items-center gap-3 mb-2">
         <motion.button
+          whileTap={{ scale: 0.85 }}
           onClick={handleLike}
-          disabled={loading}
-          whileTap={{ scale: 0.8 }}
-          animate={{ scale: liked ? 1.2 : 1 }}
-          transition={{ type: "spring", stiffness: 300 }}
-          className={`
-            text-xl transition
-            ${liked ? "text-red-500" : "text-white"}
-            ${loading ? "opacity-50" : ""}
-          `}
         >
-          ❤️
+          <Heart
+            size={24}
+            className={`transition-all duration-200 ${
+              post.isLiked
+                ? "text-red-500 fill-red-500 scale-110"
+                : "text-gray-400 hover:text-red-400"
+            }`}
+          />
         </motion.button>
 
-        {/* 💬 Comment Button */}
-        <button className="text-xl hover:scale-110 transition">
-          💬
-        </button>
+        <span className="text-sm font-medium">
+          {post.likesCount || 0} likes
+        </span>
       </div>
 
-      {/* 📊 Likes Count */}
-      <p className="text-sm font-medium">
-        {likesCount} likes
-      </p>
-
-      {/* 📝 Caption */}
-      <p className="text-sm text-subtext mt-1">
-        <span className="font-medium text-text">
-          {post?.owner?.username}
-        </span>{" "}
-        {post?.caption}
-      </p>
+      {/* ✍️ Caption */}
+      {post.caption && (
+        <p className="text-sm text-subtext leading-relaxed">
+          {post.caption}
+        </p>
+      )}
     </motion.div>
   );
 };

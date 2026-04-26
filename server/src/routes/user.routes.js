@@ -5,7 +5,10 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-// 🔐 Auth
+// ─────────────────────────────────────────────
+// 🔐 AUTH ROUTES
+// ─────────────────────────────────────────────
+
 router.post(
   "/register",
   upload.fields([
@@ -19,26 +22,37 @@ router.post(
 
 router.post("/login", userControllers.logInUser);
 router.post("/refresh-token", userControllers.refreshToken);
-
-// 🔒 Protected
 router.post("/logout", verifyJWT, userControllers.logOutUser);
+
+
+// ─────────────────────────────────────────────
+// 👤 CURRENT USER (ME)
+// ─────────────────────────────────────────────
 
 router.get("/me", verifyJWT, userControllers.getCurrentUser);
 
-// 👤 Profile
-router.get("/:username", verifyJWT, userControllers.getUserProfile);
-
 router.patch(
-  "/update",
+  "/me",
   verifyJWT,
   userControllers.updateAccountDetail
 );
 
 router.patch(
-  "/profile-image",
+  "/me/profile-image",
   verifyJWT,
   upload.single("profileImage"),
   userControllers.updateProfileImage
+);
+
+
+// ─────────────────────────────────────────────
+// 🔍 PUBLIC PROFILE
+// ─────────────────────────────────────────────
+
+router.get(
+  "/profile/:username",
+  verifyJWT, // optional: you can remove this if public
+  userControllers.getUserProfile
 );
 
 export default router;

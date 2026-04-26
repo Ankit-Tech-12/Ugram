@@ -1,23 +1,28 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate, Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
-import { useNavigate } from "react-router-dom";
-import { loginUser } from "../features/auth/authAPI";
+import { loginUser } from "../features/auth/authSlice";
 
 const Login = () => {
-  // 🧠 Step 1: State (store form data)
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // 🧠 Redux state
+  const { loading, error } = useSelector((state) => state.auth);
+
+  // 🧠 local form state
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
-  const navigate = useNavigate();
-
-  // 🧠 Step 2: Error state (for validation)
   const [errors, setErrors] = useState({});
 
-  // 🧠 Step 3: Handle input change
+  // 🔄 handle input
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -27,87 +32,66 @@ const Login = () => {
     }));
   };
 
-  // 🧠 Step 4: Validation
+  // ✅ validation
   const validate = () => {
     let newErrors = {};
 
-    // Email check
     if (!form.email) {
       newErrors.email = "Email is required";
     } else if (!form.email.includes("@")) {
       newErrors.email = "Enter valid email";
     }
 
-    // Password check
     if (!form.password) {
       newErrors.password = "Password is required";
     } else if (form.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = "Min 6 characters";
     }
 
     setErrors(newErrors);
-
-    // return true if no errors
     return Object.keys(newErrors).length === 0;
   };
 
-  // 🧠 Step 5: Submit handler
+  // 🚀 submit
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!validate()) return;
+    if (!validate()) return;
 
-  try {
-    const data = await loginUser({
-      email: form.email,
-      password: form.password,
-    });
+    const result = await dispatch(
+      loginUser({
+        email: form.email,
+        password: form.password,
+      })
+    );
 
-    console.log("Login Success:", data);
-
-    // 👉 temporary store (later Redux)
-    localStorage.setItem("user", JSON.stringify(data.user));
-
-    // 👉 redirect to home
-    navigate("/");
-
-  } catch (error) {
-    console.log(error.response?.data?.message || "Login failed");
-  }
-};
+    // ✅ success
+    if (result.meta.requestStatus === "fulfilled") {
+      navigate("/");
+    }
+  };
 
   return (
-    <div
-      className="
-        min-h-screen flex items-center justify-center
-        px-4
-        bg-gradient-to-br from-black via-purple-900 to-black
-      "
-    >
-      {/* Card */}
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-black via-purple-900 to-black">
+      
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="
-          w-full max-w-md
-          p-6 sm:p-8
-          rounded-2xl
-          backdrop-blur-xl
-          bg-white/5 dark:bg-white/10
-          border border-border
-          shadow-2xl
-        "
+        className="w-full max-w-md p-6 sm:p-8 rounded-2xl backdrop-blur-xl bg-white/5 border border-border shadow-2xl"
       >
-        {/* Title */}
         <h2 className="text-2xl sm:text-3xl font-bold text-center text-text mb-6">
           Welcome Back 😏
         </h2>
 
-        {/* Form */}
+        {/* 🔴 Backend error */}
+        {error && (
+          <p className="text-red-400 text-sm text-center mb-3">
+            {error}
+          </p>
+        )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-          {/* Email */}
           <Input
             label="Email or Username"
             name="email"
@@ -117,7 +101,6 @@ const Login = () => {
             error={errors.email}
           />
 
-          {/* Password */}
           <Input
             label="Password"
             type="password"
@@ -128,18 +111,23 @@ const Login = () => {
             error={errors.password}
           />
 
-          {/* Button */}
-          <Button type="submit" className="w-full mt-2">
-            Login
+          <Button
+            type="submit"
+            className="w-full mt-2"
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
           </Button>
         </form>
 
-        {/* Footer */}
         <p className="text-xs sm:text-sm text-subtext text-center mt-5">
           Don’t have an account?{" "}
-          <span className="text-primary cursor-pointer hover:underline">
+          <Link
+            to="/register"
+            className="text-primary hover:underline"
+          >
             Register
-          </span>
+          </Link>
         </p>
       </motion.div>
     </div>

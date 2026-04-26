@@ -1,16 +1,26 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-// create context
+// 🎯 create context
 const ThemeContext = createContext();
 
-// provider
+// 🎯 provider
 export const ThemeProvider = ({ children }) => {
-  // get initial theme from localStorage or default to dark
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("theme") || "dark";
-  });
+  const getInitialTheme = () => {
+    const saved = localStorage.getItem("theme");
 
-  // apply theme to HTML root
+    if (saved) return saved;
+
+    // 🧠 detect system theme
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+    return prefersDark ? "dark" : "light";
+  };
+
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  // 🎯 apply theme to root
   useEffect(() => {
     const root = document.documentElement;
 
@@ -20,19 +30,37 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // toggle function
+  // 🎯 listen to system theme change (optional but 🔥)
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const handleChange = () => {
+      const saved = localStorage.getItem("theme");
+
+      // only auto-change if user hasn't manually set theme
+      if (!saved) {
+        setTheme(media.matches ? "dark" : "light");
+      }
+    };
+
+    media.addEventListener("change", handleChange);
+
+    return () => media.removeEventListener("change", handleChange);
+  }, []);
+
+  // 🔄 toggle
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
 };
 
-// custom hook (clean usage)
+// 🎯 custom hook
 export const useTheme = () => {
   const context = useContext(ThemeContext);
 

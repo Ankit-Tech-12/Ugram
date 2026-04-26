@@ -1,10 +1,14 @@
+import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 
-const Layout = ({ children }) => {
+const Layout = ({children}) => {
   return (
     <div className="min-h-screen bg-bg text-text">
       <Navbar />
-      <main>{children}</main>
+
+    <main>{children}</main>
+
+      <Outlet />
     </div>
   );
 };

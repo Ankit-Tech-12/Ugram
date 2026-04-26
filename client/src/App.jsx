@@ -1,58 +1,53 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 
 import Layout from "./components/layout/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
-import ProtectedRoute from "./components/ProtectedRoute";
+
+import { fetchCurrentUser } from "./features/auth/authSlice";
 
 function App() {
+  const dispatch = useDispatch();
+
+  // 🔐 auto login (check user on refresh)
+  useEffect(() => {
+  const isAuthPage =
+    window.location.pathname === "/login" ||
+    window.location.pathname === "/register";
+
+  if (!isAuthPage) {
+    dispatch(fetchCurrentUser());
+  }
+}, [dispatch]);
+
   return (
-    <BrowserRouter>
-      <Routes>
+    <Routes>
 
-        {/* Auth Pages (no navbar) */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      {/* 🔓 Public Routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-        {/* App Pages (with navbar) */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Home />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+      {/* 🔐 Protected Routes with Layout */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/create" element={<CreatePost />} />
+      </Route>
 
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Profile />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/create"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <CreatePost />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-      </Routes>
-    </BrowserRouter>
+    </Routes>
   );
 }
 

@@ -117,7 +117,7 @@ Ugram/
 ### 1️⃣ Clone Repository
 
 ```id="l7w3d1"
-git clone https://github.com/your-username/Ugram.git
+git clone https://github.com/Ankit-Tech-12/Ugram.git
 cd Ugram
 ```
 

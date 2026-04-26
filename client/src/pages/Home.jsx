@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import Skeleton from "../components/ui/Skeleton";
-import PostCard from "../components/post/PostCard";
-import { fetchFeedPosts } from "../features/post/postSlice";
+import Skeleton from "../components/ui/Skeleton.jsx";
+import PostCard from "../components/post/PostCard.jsx";
+import { fetchFeedPosts } from "../features/post/postSlice.js";
 
 const Home = () => {
   const dispatch = useDispatch();

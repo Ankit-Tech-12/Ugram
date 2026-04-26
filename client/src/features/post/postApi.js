@@ -1,4 +1,4 @@
-import api from "../../utils/axios";
+import api from "../../utils/axios.js";
 
 // 📸 CREATE POST
 export const createPost = async (formData) => {

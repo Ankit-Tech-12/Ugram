@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import { getMyPosts } from "../features/post/postApi";
-import Skeleton from "../components/ui/Skeleton";
+import { getMyPosts } from "../features/post/postApi.js";
+import Skeleton from "../components/ui/Skeleton.jsx";
 
 const Profile = () => {
   // ✅ get user from Redux

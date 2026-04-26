@@ -1,4 +1,4 @@
-import api from "../../utils/axios";
+import api from "../../utils/axios.js";
 
 // 🔐 Login API
 export const loginUser = async (data) => {

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../utils/axios";
+import api from "../../utils/axios.js";
 
 // 🔥 FETCH FEED POSTS
 export const fetchFeedPosts = createAsyncThunk(

@@ -2,16 +2,15 @@ import { Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-import Layout from "./components/layout/Layout";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./components/layout/Layout.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Home from "./pages/Home";
-import Profile from "./pages/Profile";
-import CreatePost from "./pages/CreatePost";
-
-import { fetchCurrentUser } from "./features/auth/authSlice";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import Home from "./pages/Home.jsx";
+import Profile from "./pages/Profile.jsx";
+import CreatePost from "./pages/CreatePost.jsx";
+import { fetchCurrentUser } from "./features/auth/authSlice.js";
 
 function App() {
   const dispatch = useDispatch();

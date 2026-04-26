@@ -2,9 +2,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 
-import Input from "../components/ui/Input";
-import Button from "../components/ui/Button";
-import { registerUser } from "../features/auth/authAPI";
+import Input from "../components/ui/Input.jsx";
+import Button from "../components/ui/Button.jsx";
+import { registerUser } from "../features/auth/authApi.js";
 
 const Register = () => {
   const navigate = useNavigate();

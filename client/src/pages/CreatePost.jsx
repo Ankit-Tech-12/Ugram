@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
-import { createPost } from "../features/post/postApi"; 
+import Button from "../components/ui/Button.jsx";
+import Input from "../components/ui/Input.jsx";
+import { createPost } from "../features/post/postApi.js"; 
 
 const MAX_CAPTION = 150;
 

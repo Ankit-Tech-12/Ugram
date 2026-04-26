@@ -12,8 +12,8 @@ import {
   Menu,
 } from "lucide-react";
 
-import ThemeToggle from "../ui/ThemeToggle";
-import { logoutUser } from "../../features/auth/authSlice";
+import ThemeToggle from "../ui/ThemeToggle.jsx";
+import { logoutUser } from "../../features/auth/authSlice.js";
 
 const Navbar = () => {
   const { pathname } = useLocation();

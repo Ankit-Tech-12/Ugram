@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   toggleLikeLocal,
   toggleLikePost,
-} from "../../features/post/postSlice";
+} from "../../features/post/postSlice.js";
 
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();

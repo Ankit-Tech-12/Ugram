@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import Input from "../components/ui/Input";
-import Button from "../components/ui/Button";
-import { loginUser } from "../features/auth/authSlice";
+import Input from "../components/ui/Input.jsx";
+import Button from "../components/ui/Button.jsx";
+import { loginUser } from "../features/auth/authSlice.js";
 
 const Login = () => {
   const navigate = useNavigate();

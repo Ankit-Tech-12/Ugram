@@ -45,7 +45,7 @@ const Navbar = () => {
     >
       {/* 🔗 Logo */}
       <Link to="/" className="text-lg sm:text-xl font-bold text-primary">
-        SocialApp 😏
+        SocialApp 
       </Link>
 
       {/* 🧭 Desktop Nav */}

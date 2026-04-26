@@ -63,7 +63,7 @@ const Profile = () => {
             </p>
 
             <p className="text-sm mt-2 text-subtext">
-              {user?.bio || "No bio yet 😏"}
+              {user?.bio || "No bio yet "}
             </p>
 
             {/* Stats */}

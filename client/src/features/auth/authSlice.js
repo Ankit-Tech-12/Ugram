@@ -55,7 +55,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
-    loading: true,   // 👈 IMPORTANT (start as true)
+    loading: false,   
     error: null,
   },
 

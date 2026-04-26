@@ -58,7 +58,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     username: username.toLowerCase(),
-    profileImage: uploaded.secure_url,
+    profileImage: uploaded.url,
   });
 
   const createdUser = await User.findById(user._id).select(
@@ -198,7 +198,7 @@ const updateProfileImage = asyncHandler(async (req, res) => {
 
   const user = await User.findByIdAndUpdate(
     req.user._id,
-    { $set: { profileImage: uploaded.secure_url } },
+    { $set: { profileImage: uploaded.url } },
     { new: true }
   ).select("-password");
 

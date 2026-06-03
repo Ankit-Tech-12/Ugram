@@ -23,7 +23,9 @@ router.post(
 router.post("/login", userControllers.logInUser);
 router.post("/refresh-token", userControllers.refreshToken);
 router.post("/logout", verifyJWT, userControllers.logOutUser);
-
+// router.get("/test", (req, res) => {
+//   res.send("User route working");
+// });
 
 // ─────────────────────────────────────────────
 // 👤 CURRENT USER (ME)

@@ -94,7 +94,7 @@ const CreatePost = () => {
         <div className="bg-card p-5 rounded-2xl border border-border shadow-xl">
 
           <h2 className="text-xl sm:text-2xl font-bold mb-5 text-center">
-            Create Post 📸
+            Create Post 
           </h2>
 
           {/* 🔴 Error */}

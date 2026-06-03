@@ -11,18 +11,15 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // 🧠 Redux state
   const { loading, error } = useSelector((state) => state.auth);
 
-  // 🧠 local form state
   const [form, setForm] = useState({
-    email: "",
+    login: "",
     password: "",
   });
 
   const [errors, setErrors] = useState({});
 
-  // 🔄 handle input
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -30,42 +27,50 @@ const Login = () => {
       ...prev,
       [name]: value,
     }));
+
+    // Clear field error while typing
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
 
-  // ✅ validation
   const validate = () => {
-    let newErrors = {};
+    const newErrors = {};
 
-    if (!form.email) {
-      newErrors.email = "Email is required";
-    } else if (!form.email.includes("@")) {
-      newErrors.email = "Enter valid email";
+    if (!form.login.trim()) {
+      newErrors.login = "Email or Username is required";
     }
 
     if (!form.password) {
       newErrors.password = "Password is required";
     } else if (form.password.length < 6) {
-      newErrors.password = "Min 6 characters";
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
-  // 🚀 submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validate()) return;
 
-    const result = await dispatch(
-      loginUser({
-        email: form.email,
-        password: form.password,
-      })
-    );
+    const loginData = {
+      password: form.password,
+    };
 
-    // ✅ success
+    // Auto detect email or username
+    if (form.login.includes("@")) {
+      loginData.email = form.login.trim();
+    } else {
+      loginData.username = form.login.trim();
+    }
+
+    const result = await dispatch(loginUser(loginData));
+
     if (result.meta.requestStatus === "fulfilled") {
       navigate("/");
     }
@@ -73,32 +78,30 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-black via-purple-900 to-black">
-      
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
         className="w-full max-w-md p-6 sm:p-8 rounded-2xl backdrop-blur-xl bg-white/5 border border-border shadow-2xl"
       >
         <h2 className="text-2xl sm:text-3xl font-bold text-center text-text mb-6">
-          Welcome Back 😏
+          Welcome Back
         </h2>
 
-        {/* 🔴 Backend error */}
         {error && (
-          <p className="text-red-400 text-sm text-center mb-3">
+          <p className="text-red-400 text-sm text-center mb-4">
             {error}
           </p>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
           <Input
             label="Email or Username"
-            name="email"
+            name="login"
             placeholder="Enter email or username"
-            value={form.email}
+            value={form.login}
             onChange={handleChange}
-            error={errors.email}
+            error={errors.login}
           />
 
           <Input
@@ -121,7 +124,7 @@ const Login = () => {
         </form>
 
         <p className="text-xs sm:text-sm text-subtext text-center mt-5">
-          Don’t have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link
             to="/register"
             className="text-primary hover:underline"

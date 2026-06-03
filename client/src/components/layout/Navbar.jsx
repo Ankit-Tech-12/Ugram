@@ -77,7 +77,10 @@ const Navbar = () => {
 
         {/* 👤 Avatar */}
         <button
-          onClick={() => setDropdownOpen(!dropdownOpen)}
+          onClick={() =>{ 
+            setDropdownOpen(!dropdownOpen)
+            setMenuOpen(false)
+          }}
           className="w-9 h-9 rounded-full overflow-hidden bg-primary/30 flex items-center justify-center"
         >
           {user?.profileImage ? (
@@ -126,7 +129,10 @@ const Navbar = () => {
 
         {/* 📱 Mobile */}
         <button
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={() => {
+            setMenuOpen(!menuOpen)
+            setDropdownOpen(false)
+          }}
           className="md:hidden"
         >
           <Menu size={22} />

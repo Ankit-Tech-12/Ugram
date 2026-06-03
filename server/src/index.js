@@ -1,11 +1,12 @@
+import "./config/env.js";
 import app from "./app.js";
-import dotenv from "dotenv"
+// import dotenv from "dotenv"
 import connectDB from "./db/index.js"
 
-dotenv.config({
-    path:"./.env"
-});
-
+// dotenv.config({
+//     path:"./.env"
+// });
+// console.log("hello:1",process.env.CORS_ORIGIN);
 const port = process.env.PORT || 8000;
 
 connectDB()

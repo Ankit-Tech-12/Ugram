@@ -8,8 +8,8 @@ import jwt from "jsonwebtoken";
 
 const cookieOptions = {
   httpOnly: true,
-  secure: true, // change to true in production
-  sameSite: "None",
+  secure: process.env.SECURE,  
+  sameSite: process.env.SAMESITE, 
 };
 
 // ─────────────────────────────────────────────

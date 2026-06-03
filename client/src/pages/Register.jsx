@@ -97,7 +97,7 @@ const Register = () => {
         className="w-full max-w-md p-6 sm:p-8 rounded-2xl backdrop-blur-xl bg-white/5 border border-border shadow-2xl"
       >
         <h2 className="text-2xl sm:text-3xl font-bold text-center text-text mb-6">
-          Create Account 🚀
+          Create Account 
         </h2>
 
         {/* 🔴 API Error */}

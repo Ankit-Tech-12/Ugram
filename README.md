@@ -221,6 +221,6 @@ MIT License
 
 **Anii**
 
-> Built with ❤️, late nights, and a lot of debugging 😏
+> Built with ❤️, late nights, and a lot of debugging 
 
 ---

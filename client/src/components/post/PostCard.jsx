@@ -40,7 +40,7 @@ const PostCard = ({ post }) => {
       </div>
 
       {/* 📸 Image */}
-      <div className="relative w-full h-60 rounded-xl overflow-hidden mb-3 group">
+      <div className="relative w-full h-full rounded-xl overflow-hidden mb-3 group">
         <img
           src={post.image}
           alt="post"

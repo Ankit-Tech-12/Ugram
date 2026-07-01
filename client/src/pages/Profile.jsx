@@ -98,7 +98,7 @@ const Profile = () => {
           <p className="text-center text-red-400">{error}</p>
 
         ) : posts.length === 0 ? (
-          <p className="text-center text-subtext">No posts yet 😴</p>
+          <p className="text-center text-subtext">No posts yet </p>
 
         ) : (
 

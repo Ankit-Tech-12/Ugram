@@ -31,12 +31,12 @@ const Navbar = () => {
     { name: "Profile", path: "/profile", icon: <User size={18} /> },
   ];
 
-//   useEffect(() => {
-//   const handleClick = () => setDropdownOpen(false);
-//   window.addEventListener("click", handleClick);
+  //   useEffect(() => {
+  //   const handleClick = () => setDropdownOpen(false);
+  //   window.addEventListener("click", handleClick);
 
-//   return () => window.removeEventListener("click", handleClick);
-// }, []);
+  //   return () => window.removeEventListener("click", handleClick);
+  // }, []);
 
   // 🚪 logout
   const handleLogout = async () => {
@@ -51,8 +51,16 @@ const Navbar = () => {
       className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-10 py-3 backdrop-blur-lg bg-white/5 dark:bg-black/20 border-b border-border"
     >
       {/* 🔗 Logo */}
-      <Link to="/" className="text-lg sm:text-xl font-bold text-primary">
-        SocialApp 
+      {/* <Link to="/" className="text-lg sm:text-xl font-bold text-primary">
+        Ugram 
+      </Link> */}
+      <Link to="/" className="flex items-center gap-2 text-lg sm:text-xl font-bold text-primary">
+        <img
+          src="logo/ugram_logo.png"
+          alt="Ugram logo"
+          className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover"
+        />
+        <span>Ugram</span>
       </Link>
 
       {/* 🧭 Desktop Nav */}
@@ -61,9 +69,8 @@ const Navbar = () => {
           <Link
             key={link.path}
             to={link.path}
-            className={`flex items-center gap-2 ${
-              pathname === link.path ? "text-primary" : "hover:text-primary"
-            }`}
+            className={`flex items-center gap-2 ${pathname === link.path ? "text-primary" : "hover:text-primary"
+              }`}
           >
             {link.icon}
             {link.name}
@@ -77,7 +84,7 @@ const Navbar = () => {
 
         {/* 👤 Avatar */}
         <button
-          onClick={() =>{ 
+          onClick={() => {
             setDropdownOpen(!dropdownOpen)
             setMenuOpen(false)
           }}
@@ -151,9 +158,8 @@ const Navbar = () => {
               key={link.path}
               to={link.path}
               onClick={() => setMenuOpen(false)}
-              className={`flex items-center gap-2 ${
-                pathname === link.path ? "text-primary" : "hover:text-primary"
-              }`}
+              className={`flex items-center gap-2 ${pathname === link.path ? "text-primary" : "hover:text-primary"
+                }`}
             >
               {link.icon}
               {link.name}

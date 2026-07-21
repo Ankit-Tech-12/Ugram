@@ -202,7 +202,7 @@ const toggleLike = asyncHandler(async (req, res) => {
   } else {
     // like
     post.likes.push(userId);
-  }
+  } 
 
   await post.save();
 

@@ -39,7 +39,7 @@ const userSchema=new Schema({
         default:""
     },
 
-    follower:[{
+    followers:[{
         type:Schema.Types.ObjectId,
         ref:"User"
     }],

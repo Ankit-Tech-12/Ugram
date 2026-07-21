@@ -57,4 +57,12 @@ router.get(
   userControllers.getUserProfile
 );
 
+
+//Follow or unfollow
+router.patch(
+  "/follow/:userId",
+  verifyJWT,
+  userControllers.toggleFollowing
+)
+
 export default router;

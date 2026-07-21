@@ -8,8 +8,8 @@ import jwt from "jsonwebtoken";
 
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.SECURE,  
-  sameSite: process.env.SAMESITE, 
+  secure: process.env.SECURE,
+  sameSite: process.env.SAMESITE,
 };
 
 // ─────────────────────────────────────────────
@@ -232,6 +232,61 @@ const getUserProfile = asyncHandler(async (req, res) => {
   );
 });
 
+
+// Following system
+const toggleFollowing = asyncHandler(async (req, res) => {
+  const currentUserId = req.user.id;
+  const { userId } = req.params;
+
+  //prevent current user to follow itself
+  if (currentUserId === userId) {
+    throw new ApiError(400, "You cannot follow yourself");
+  }
+
+  const currentUser = await User.findById(currentUserId);
+  const targetUser = await User.findById(userId);
+
+  //check if both user is exists 
+  if (!currentUser || !targetUser) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const isFollowing = currentUser.following.some(
+    (id) => id.toString() === userId
+  );
+
+  if (!isFollowing) {
+    currentUser.following.push(userId);
+    targetUser.followers.push(currentUserId);
+
+    await currentUser.save({ validateBeforeSave: false });
+    await targetUser.save({ validateBeforeSave: false })
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        null,
+        "User followed successfully"
+      )
+    )
+  } 
+  else{
+  currentUser.following.pull(userId);
+  targetUser.followers.pull(currentUserId);
+
+  await currentUser.save({ validateBeforeSave: false });
+  await targetUser.save({ validateBeforeSave: false });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      null,
+      "User unfollowed successfully"
+    )
+  )
+}
+})
+
 export {
   registerUser,
   logInUser,
@@ -241,4 +296,5 @@ export {
   updateAccountDetail,
   updateProfileImage,
   getUserProfile,
+  toggleFollowing
 };

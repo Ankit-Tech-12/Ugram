@@ -24,7 +24,7 @@ const uploadPost = asyncHandler(async (req, res) => {
   }
 
   const post = await Post.create({
-    image: uploadedImage.url, 
+    image: uploadedImage.url,
     caption: caption || "",
     owner: req.user._id,
   });
@@ -59,6 +59,7 @@ const feeds = asyncHandler(async (req, res) => {
             $project: {
               username: 1,
               profileImage: 1,
+              followers: 1,
             },
           },
         ],
@@ -68,26 +69,26 @@ const feeds = asyncHandler(async (req, res) => {
     { $unwind: "$owner" },
 
     // ❤️ Likes users
-    {
-      $lookup: {
-        from: "users",
-        let: { userIds: { $ifNull: ["$likes", []] } },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $in: ["$_id", "$$userIds"] },
-            },
-          },
-          {
-            $project: {
-              username: 1,
-              profileImage: 1,
-            },
-          },
-        ],
-        as: "likedUsers",
-      },
-    },
+    // {
+    //   $lookup: {
+    //     from: "users",
+    //     let: { userIds: { $ifNull: ["$likes", []] } },
+    //     pipeline: [
+    //       {
+    //         $match: {
+    //           $expr: { $in: ["$_id", "$$userIds"] },
+    //         },
+    //       },
+    //       {
+    //         $project: {
+    //           username: 1,
+    //           profileImage: 1,
+    //         },
+    //       },
+    //     ],
+    //     as: "likedUsers",
+    //   },
+    // },
 
     // 📊 Computed fields
     {
@@ -96,6 +97,15 @@ const feeds = asyncHandler(async (req, res) => {
         isLiked: {
           $in: [userId, { $ifNull: ["$likes", []] }],
         },
+        "owner.isFollowing": {
+          $in: [userId, "$owner.followers"]
+        }
+      },
+    },
+
+    {
+      $project: {
+        "owner.followers": 0,
       },
     },
 
@@ -202,7 +212,7 @@ const toggleLike = asyncHandler(async (req, res) => {
   } else {
     // like
     post.likes.push(userId);
-  } 
+  }
 
   await post.save();
 
@@ -214,4 +224,4 @@ const toggleLike = asyncHandler(async (req, res) => {
   );
 });
 
-export { uploadPost, feeds, getUserFeeds ,toggleLike };
+export { uploadPost, feeds, getUserFeeds, toggleLike };

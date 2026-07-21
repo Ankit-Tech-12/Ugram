@@ -259,32 +259,27 @@ const toggleFollowing = asyncHandler(async (req, res) => {
     currentUser.following.push(userId);
     targetUser.followers.push(currentUserId);
 
-    await currentUser.save({ validateBeforeSave: false });
-    await targetUser.save({ validateBeforeSave: false })
-
-    return res.status(200).json(
-      new ApiResponse(
-        200,
-        null,
-        "User followed successfully"
-      )
-    )
-  } 
-  else{
+  } else{
   currentUser.following.pull(userId);
   targetUser.followers.pull(currentUserId);
 
+}
+
   await currentUser.save({ validateBeforeSave: false });
   await targetUser.save({ validateBeforeSave: false });
-
+  
   return res.status(200).json(
-    new ApiResponse(
-      200,
-      null,
-      "User unfollowed successfully"
-    )
+  new ApiResponse(
+    200,
+    {
+      isFollowing: !isFollowing,
+      followersCount: targetUser.followers.length,
+    },
+    isFollowing
+      ? "User unfollowed successfully"
+      : "User followed successfully"
   )
-}
+);
 })
 
 export {

@@ -57,6 +57,15 @@ const postSlice = createSlice({
       post.isLiked = newLiked;
       post.likesCount += newLiked ? 1 : -1;
     },
+    toggleFollowLocal: (state, action) => {
+      const userId = action.payload;
+
+      state.posts.forEach((post) => {
+        if (post.owner?._id === userId) {
+          post.owner.isFollowing = !post.owner.isFollowing;
+        }
+      });
+    },
   },
 
   extraReducers: (builder) => {
@@ -106,5 +115,8 @@ const postSlice = createSlice({
   },
 });
 
-export const { toggleLikeLocal } = postSlice.actions;
+export const {
+  toggleLikeLocal,
+  toggleFollowLocal
+} = postSlice.actions;
 export default postSlice.reducer;

@@ -60,7 +60,7 @@ router.get(
 
 //Follow or unfollow
 router.patch(
-  "/follow/:userId",
+  "/:userId/follow",
   verifyJWT,
   userControllers.toggleFollowing
 )

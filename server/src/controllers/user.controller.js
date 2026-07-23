@@ -12,6 +12,35 @@ const cookieOptions = {
   sameSite: process.env.SAMESITE,
 };
 
+const getUserData = async (user) => {
+  const safeData=(
+  await User.aggregate([
+  {
+    $match: {
+      _id: user._id,
+    },
+  },
+  {
+    $project: {
+      fullname: 1,
+      username: 1,
+      email: 1,
+      profileImage: 1,
+      bio: 1,
+      followersCount: {
+        $size: { $ifNull: ["$followers", []] },
+      },
+      followingCount: {
+        $size: { $ifNull: ["$following", []] },
+      },
+      createdAt: 1,
+    },
+  },
+])
+  )[0];
+  return safeData;
+}
+
 // ─────────────────────────────────────────────
 // 🔐 TOKEN GENERATION
 // ─────────────────────────────────────────────
@@ -95,31 +124,7 @@ const logInUser = asyncHandler(async (req, res) => {
   // const safeUser = await User.findById(user._id).select(
   //   "-password -refreshToken"
   // );
-  const safeUser = (
-  await User.aggregate([
-  {
-    $match: {
-      _id: user._id,
-    },
-  },
-  {
-    $project: {
-      fullname: 1,
-      username: 1,
-      email: 1,
-      profileImage: 1,
-      bio: 1,
-      followersCount: {
-        $size: { $ifNull: ["$followers", []] },
-      },
-      followingCount: {
-        $size: { $ifNull: ["$following", []] },
-      },
-      createdAt: 1,
-    },
-  },
-])
-  )[0];
+  const safeUser = await getUserData(user);
   return res
     .status(200)
     .cookie("accessToken", accessToken, cookieOptions)
@@ -184,9 +189,11 @@ const refreshToken = asyncHandler(async (req, res) => {
 // 👤 CURRENT USER
 // ─────────────────────────────────────────────
 const getCurrentUser = asyncHandler(async (req, res) => {
+  const safeUser = await getUserData(req.user);
+
   return res
     .status(200)
-    .json(new ApiResponse(200, req.user, "Current user"));
+    .json(new ApiResponse(200, safeUser , "Current user"));
 });
 
 // ─────────────────────────────────────────────

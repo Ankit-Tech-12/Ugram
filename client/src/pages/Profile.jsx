@@ -74,12 +74,12 @@ const Profile = () => {
               </div>
 
               <div className="text-center">
-                <p className="font-semibold">{user?.followers?.length || 0}</p>
+                <p className="font-semibold">{user?.followersCount || 0}</p>
                 <p className="text-xs text-subtext">Followers</p>
               </div>
 
               <div className="text-center">
-                <p className="font-semibold">{user?.following?.length || 0}</p>
+                <p className="font-semibold">{user?.followingCount || 0}</p>
                 <p className="text-xs text-subtext">Following</p>
               </div>
             </div>

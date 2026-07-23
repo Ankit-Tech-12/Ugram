@@ -92,10 +92,34 @@ const logInUser = asyncHandler(async (req, res) => {
 
   const { accessToken, refreshToken } = await generateTokens(user._id);
 
-  const safeUser = await User.findById(user._id).select(
-    "-password -refreshToken"
-  );
-
+  // const safeUser = await User.findById(user._id).select(
+  //   "-password -refreshToken"
+  // );
+  const safeUser = (
+  await User.aggregate([
+  {
+    $match: {
+      _id: user._id,
+    },
+  },
+  {
+    $project: {
+      fullname: 1,
+      username: 1,
+      email: 1,
+      profileImage: 1,
+      bio: 1,
+      followersCount: {
+        $size: { $ifNull: ["$followers", []] },
+      },
+      followingCount: {
+        $size: { $ifNull: ["$following", []] },
+      },
+      createdAt: 1,
+    },
+  },
+])
+  )[0];
   return res
     .status(200)
     .cookie("accessToken", accessToken, cookieOptions)

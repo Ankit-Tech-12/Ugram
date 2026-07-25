@@ -60,6 +60,7 @@ router.get(
 // Target user
 router.get(
   "/:userId/profile",
+  verifyJWT,
   userControllers.getTargetUser
 )
 

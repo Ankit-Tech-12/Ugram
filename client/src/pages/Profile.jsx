@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 
+import { toggleFollowing } from "../features/user/userSlice";
 import { getTargetUser } from "../features/user/userSlice";
 import { getMyPosts } from "../features/post/postApi.js";
 import Skeleton from "../components/ui/Skeleton.jsx";
@@ -16,16 +17,17 @@ const Profile = () => {
   const profile = useSelector((state) => state.users.profile);
 
   const user = userId ? profile : authUser;
+  const isMyProfile = authUser?._id === user?._id;
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-  if (userId) {
-    dispatch(getTargetUser(userId));
-  }
-}, [dispatch, userId]);
+    if (userId) {
+      dispatch(getTargetUser(userId));
+    }
+  }, [dispatch, userId]);
 
   // 🔄 fetch posts
   useEffect(() => {
@@ -43,6 +45,12 @@ const Profile = () => {
     fetchPosts();
   }, []);
 
+  const handleFollow = async () => {
+    if (!user) return;
+
+    await dispatch(toggleFollowing(user._id));
+  };
+  
   return (
     <div className="min-h-screen bg-bg text-text">
       <div className="max-w-4xl mx-auto px-4 py-6">
@@ -100,10 +108,31 @@ const Profile = () => {
           </div>
         </motion.div>
 
+        {/* follow or edit */}
+        <div className="mt-6">
+          {isMyProfile ? (
+            <button
+              className="px-5 py-2 rounded-lg bg-card border border-border hover:bg-border transition"
+            >
+              Edit Profile
+            </button>
+          ) : (
+            <button
+              onClick={handleFollow}
+              className={`px-5 py-2 rounded-lg font-medium transition ${user?.isFollowing
+                ? "bg-card border border-border hover:bg-border"
+                : "bg-primary hover:bg-primary/90 text-white"
+                }`}
+            >
+              {user?.isFollowing ? "Following" : "Follow"}
+            </button>
+          )}
+        </div>
+
         {/* 🔄 LOADING */}
         {loading ? (
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            {[1,2,3,4,5,6].map((i) => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <Skeleton key={i} className="aspect-square rounded-lg" />
             ))}
           </div>

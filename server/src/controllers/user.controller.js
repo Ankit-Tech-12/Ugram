@@ -13,45 +13,7 @@ const cookieOptions = {
   sameSite: process.env.SAMESITE,
 };
 
-const getSafeUser = async (userId) => {
-  if (!userId) {
-    throw new ApiError(404, "User not found");
-  }
-
-  const safeData=(
-  await User.aggregate([
-  {
-    $match: {
-      _id: new mongoose.Types.ObjectId(userId),
-    },
-  },
-  {
-    $project: {
-      fullName: 1,
-      username: 1,
-      email: 1,
-      profileImage: 1,
-      bio: 1,
-      followersCount: {
-        $size: { $ifNull: ["$followers", []] },
-      },
-      followingCount: {
-        $size: { $ifNull: ["$following", []] },
-      },
-      createdAt: 1,
-    },
-  },
-])
-  )[0];
-
-  if (!safeData) {
-    throw new ApiError(404, "User not found");
-  }
-  
-  return safeData;
-};
-
-const getSafeUserFormat = (user) => {
+const formatUser = (user, currentUserId = null) => {
   return {
     _id: user._id,
     fullName: user.fullName,
@@ -61,6 +23,12 @@ const getSafeUserFormat = (user) => {
     bio: user.bio,
     followersCount: user.followers?.length || 0,
     followingCount: user.following?.length || 0,
+
+    ...(currentUserId && {
+      isFollowing: user.followers.some(
+        (id) => id.toString() === currentUserId.toString()
+      ),
+    }),
   };
 };
 
@@ -147,7 +115,7 @@ const logInUser = asyncHandler(async (req, res) => {
   // const safeUser = await User.findById(user._id).select(
   //   "-password -refreshToken"
   // );
-  const safeUser = getSafeUserFormat(user);
+  const safeUser = formatUser(user);
   return res
     .status(200)
     .cookie("accessToken", accessToken, cookieOptions)
@@ -212,8 +180,9 @@ const refreshToken = asyncHandler(async (req, res) => {
 // 👤 CURRENT USER
 // ─────────────────────────────────────────────
 const getCurrentUser = asyncHandler(async (req, res) => {
-  const safeUser = await getSafeUser(req.user);
-
+  
+  const safeUser = formatUser(req.user);
+  
   return res
     .status(200)
     .json(new ApiResponse(200, safeUser , "Current user"));
@@ -221,9 +190,15 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 // targetUser
 const getTargetUser =asyncHandler(async (req , res ) => {
-  const {userId} = req.params;
+  const { userId } = req.params;
 
-  const result = await getSafeUser(userId);
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const result = formatUser(user, req.user._id);
 
   res.status(200).json(
     new ApiResponse(200 , result , "Profile Fetched of target user")

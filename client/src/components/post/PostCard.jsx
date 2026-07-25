@@ -1,6 +1,7 @@
 import { useDispatch } from "react-redux";
 import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 import {
   toggleLikeLocal,
@@ -10,22 +11,25 @@ import {
 
 import { toggleFollowing } from "../../features/user/userSlice.js";
 
+import { fetchCurrentUser } from "../../features/auth/authSlice.js";
+
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
 
   //  Like
-  const handleLike = () => {
+  const handleLike = async () => {
     if (!post?._id) return;
 
     // Optimistic update
     dispatch(toggleLikeLocal(post._id));
 
     // Backend sync
-    dispatch(toggleLikePost(post._id));
+    const result = await dispatch(toggleLikePost(post._id));
 
+    // Revert if request failed
     if (toggleLikePost.rejected.match(result)) {
-    dispatch(toggleLikeLocal(post._id));
-  }
+      dispatch(toggleLikeLocal(post._id));
+    }
   };
 
   //  Follow / Unfollow
@@ -37,6 +41,10 @@ const PostCard = ({ post }) => {
 
     // Backend sync
     const result = await dispatch(toggleFollowing(post.owner._id));
+
+  //   if (toggleFollowing.fulfilled.match(result)) {
+    
+  // }
 
     // Revert if request failed
     if (toggleFollowing.rejected.match(result)) {
@@ -53,17 +61,20 @@ const PostCard = ({ post }) => {
     >
       {/* 👤 User */}
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3">
+        <Link
+          to={`/users/${post.owner?._id}`}
+          className="flex items-center gap-3"
+        >
           <img
             src={post.owner?.profileImage || "/default-avatar.png"}
             alt="user"
-            className="w-10 h-10 rounded-full object-cover border border-border"
+            className="w-10 h-10 rounded-full object-cover border border-border cursor-pointer"
           />
 
-          <p className="font-medium text-sm sm:text-base">
+          <p className="font-medium text-sm sm:text-base hover:underline">
             {post.owner?.username || "Unknown"}
           </p>
-        </div>
+        </Link>
 
         <button
           onClick={handleFollow}

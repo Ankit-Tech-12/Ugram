@@ -1,17 +1,31 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
 
+import { getTargetUser } from "../features/user/userSlice";
 import { getMyPosts } from "../features/post/postApi.js";
 import Skeleton from "../components/ui/Skeleton.jsx";
 
 const Profile = () => {
   // ✅ get user from Redux
-  const { user } = useSelector((state) => state.auth);
+  const { userId } = useParams();
+  const dispatch = useDispatch();
+
+  const authUser = useSelector((state) => state.auth.user);
+  const profile = useSelector((state) => state.users.profile);
+
+  const user = userId ? profile : authUser;
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+  if (userId) {
+    dispatch(getTargetUser(userId));
+  }
+}, [dispatch, userId]);
 
   // 🔄 fetch posts
   useEffect(() => {

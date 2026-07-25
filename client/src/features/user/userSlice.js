@@ -17,12 +17,28 @@ export const toggleFollowing = createAsyncThunk(
   }
 );
 
+// Getting profile of target user
+
+export const getTargetUser = createAsyncThunk(
+  "users/getUserProfile",
+  async (userId, { rejectWithValue }) => {
+    try {
+      return await userApi.getTargetUser(userId);
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch user"
+      );
+    }
+  }
+);
+
 // ─────────────────────────────────────────────
 // 🧠 INITIAL STATE
 // ─────────────────────────────────────────────
 const initialState = {
-  isFollowing: false,
-  followersCount: 0,
+  profile: null,
+  // isFollowing: false,
+  // followersCount: 0,
   loading: false,
   error: null,
 };
@@ -49,15 +65,31 @@ const userSlice = createSlice({
 
       .addCase(toggleFollowing.fulfilled, (state, action) => {
         state.loading = false;
-        state.isFollowing = action.payload.isFollowing;
-        state.followersCount = action.payload.followersCount;
+
+        if (state.profile) {
+          state.profile.isFollowing = action.payload.isFollowing;
+          state.profile.followersCount = action.payload.followersCount;
+        }
       })
 
       .addCase(toggleFollowing.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
-  },
+      })
+
+    .addCase(getTargetUser.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(getTargetUser.fulfilled, (state, action) => {
+      state.loading = false;
+      state.profile = action.payload;
+    })
+    .addCase(getTargetUser.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    });
+},
 });
 
 export const { clearUserError } = userSlice.actions;

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../utils/axios.js";
+import { toggleFollowing } from "../user/userSlice";
 
 // ─────────────────────────────────────────────
 // 🔐 LOGIN
@@ -55,7 +56,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
-    loading: false,   
+    loading: false,
     error: null,
   },
 
@@ -94,6 +95,13 @@ const authSlice = createSlice({
       .addCase(fetchCurrentUser.rejected, (state) => {
         state.loading = false;
         state.user = null;
+      })
+
+      // Follow/following
+      .addCase(toggleFollowing.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.followingCount = action.payload.followingCount;
+        }
       })
 
       // ─── LOGOUT ────────────────────────────

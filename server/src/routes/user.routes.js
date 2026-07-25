@@ -57,6 +57,11 @@ router.get(
   userControllers.getUserProfile
 );
 
+// Target user
+router.get(
+  "/:userId/profile",
+  userControllers.getTargetUser
+)
 
 //Follow or unfollow
 router.patch(

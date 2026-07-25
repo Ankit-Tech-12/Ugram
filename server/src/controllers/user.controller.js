@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 import { Post } from "../models/post.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const cookieOptions = {
   httpOnly: true,
@@ -12,17 +13,21 @@ const cookieOptions = {
   sameSite: process.env.SAMESITE,
 };
 
-const getUserData = async (user) => {
+const getSafeUser = async (userId) => {
+  if (!userId) {
+    throw new ApiError(404, "User not found");
+  }
+
   const safeData=(
   await User.aggregate([
   {
     $match: {
-      _id: user._id,
+      _id: new mongoose.Types.ObjectId(userId),
     },
   },
   {
     $project: {
-      fullname: 1,
+      fullName: 1,
       username: 1,
       email: 1,
       profileImage: 1,
@@ -38,8 +43,26 @@ const getUserData = async (user) => {
   },
 ])
   )[0];
+
+  if (!safeData) {
+    throw new ApiError(404, "User not found");
+  }
+  
   return safeData;
-}
+};
+
+const getSafeUserFormat = (user) => {
+  return {
+    _id: user._id,
+    fullName: user.fullName,
+    username: user.username,
+    email: user.email,
+    profileImage: user.profileImage,
+    bio: user.bio,
+    followersCount: user.followers?.length || 0,
+    followingCount: user.following?.length || 0,
+  };
+};
 
 // ─────────────────────────────────────────────
 // 🔐 TOKEN GENERATION
@@ -124,7 +147,7 @@ const logInUser = asyncHandler(async (req, res) => {
   // const safeUser = await User.findById(user._id).select(
   //   "-password -refreshToken"
   // );
-  const safeUser = await getUserData(user);
+  const safeUser = getSafeUserFormat(user);
   return res
     .status(200)
     .cookie("accessToken", accessToken, cookieOptions)
@@ -189,13 +212,23 @@ const refreshToken = asyncHandler(async (req, res) => {
 // 👤 CURRENT USER
 // ─────────────────────────────────────────────
 const getCurrentUser = asyncHandler(async (req, res) => {
-  const safeUser = await getUserData(req.user);
+  const safeUser = await getSafeUser(req.user);
 
   return res
     .status(200)
     .json(new ApiResponse(200, safeUser , "Current user"));
 });
 
+// targetUser
+const getTargetUser =asyncHandler(async (req , res ) => {
+  const {userId} = req.params;
+
+  const result = await getSafeUser(userId);
+
+  res.status(200).json(
+    new ApiResponse(200 , result , "Profile Fetched of target user")
+  )
+});
 // ─────────────────────────────────────────────
 // ✏️ UPDATE PROFILE
 // ─────────────────────────────────────────────
@@ -305,13 +338,14 @@ const toggleFollowing = asyncHandler(async (req, res) => {
     {
       isFollowing: !isFollowing,
       followersCount: targetUser.followers.length,
+      followingCount: currentUser.following.length,
     },
     isFollowing
       ? "User unfollowed successfully"
       : "User followed successfully"
   )
 );
-})
+});
 
 export {
   registerUser,
@@ -322,5 +356,6 @@ export {
   updateAccountDetail,
   updateProfileImage,
   getUserProfile,
-  toggleFollowing
+  toggleFollowing,
+  getTargetUser
 };

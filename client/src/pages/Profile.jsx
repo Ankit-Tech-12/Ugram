@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import { UserPlus, UserCheck, Pencil, Heart } from "lucide-react";
 
 import { toggleFollowing } from "../features/user/userSlice";
 import { getTargetUser } from "../features/user/userSlice";
@@ -9,7 +10,7 @@ import { getMyPosts } from "../features/post/postApi.js";
 import Skeleton from "../components/ui/Skeleton.jsx";
 
 const Profile = () => {
-  // ✅ get user from Redux
+  // ✅ get user from Redux 
   const { userId } = useParams();
   const dispatch = useDispatch();
 
@@ -29,7 +30,7 @@ const Profile = () => {
     }
   }, [dispatch, userId]);
 
-  // 🔄 fetch posts
+  // 🔄 fetch posts 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -50,109 +51,169 @@ const Profile = () => {
 
     await dispatch(toggleFollowing(user._id));
   };
-  
+
   return (
     <div className="min-h-screen bg-bg text-text">
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
 
         {/* 👤 PROFILE HEADER */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-10"
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 mb-8"
         >
           {/* Profile Image */}
-          <div className="relative">
+          <div className="relative shrink-0">
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-primary/40 via-primary/10 to-transparent blur-md" />
             <img
               src={user?.profileImage}
-              alt="profile"
-              className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-2 border-primary shadow-lg"
+              alt={user?.username || "profile"}
+              className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover ring-2 ring-primary/60 ring-offset-2 ring-offset-bg shadow-lg"
             />
-
-            {/* glow effect */}
-            <div className="absolute inset-0 rounded-full border border-primary/30 blur-md"></div>
           </div>
 
           {/* Info */}
-          <div className="text-center sm:text-left flex-1">
+          <div className="flex-1 w-full text-center sm:text-left">
 
-            <h2 className="text-xl sm:text-2xl font-bold">
-              {user?.username}
-            </h2>
+            {/* Name row + action button (desktop: inline, mobile: stacked) */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                  {user?.username}
+                </h2>
+                <p className="text-subtext text-sm mt-0.5">
+                  {user?.fullName}
+                </p>
+              </div>
 
-            <p className="text-subtext text-sm mt-1">
-              {user?.fullName}
-            </p>
+              {/* Follow / Edit — desktop position */}
+              <div className="hidden sm:block sm:ml-2">
+                {isMyProfile ? (
+                  <button
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium
+                      bg-card border border-border text-text
+                      hover:bg-border/60 active:scale-[0.97] transition"
+                  >
+                    <Pencil size={15} />
+                    Edit Profile
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleFollow}
+                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium
+                      active:scale-[0.97] transition
+                      ${user?.isFollowing
+                        ? "bg-card border border-border text-text hover:bg-border/60"
+                        : "bg-primary text-white hover:bg-primary/90 shadow-sm shadow-primary/30"
+                      }`}
+                  >
+                    {user?.isFollowing ? (
+                      <>
+                        <UserCheck size={15} />
+                        Following
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus size={15} />
+                        Follow
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
 
-            <p className="text-sm mt-2 text-subtext">
-              {user?.bio || "No bio yet "}
+            {/* Bio */}
+            <p className="text-sm mt-3 text-subtext max-w-md mx-auto sm:mx-0">
+              {user?.bio || "No bio yet"}
             </p>
 
             {/* Stats */}
-            <div className="flex gap-6 mt-4 justify-center sm:justify-start">
-              <div className="text-center">
-                <p className="font-semibold">{posts.length}</p>
-                <p className="text-xs text-subtext">Posts</p>
+            <div className="flex gap-8 sm:gap-10 mt-5 justify-center sm:justify-start">
+              <div className="text-center sm:text-left">
+                <p className="font-semibold text-base">{posts.length}</p>
+                <p className="text-xs text-subtext mt-0.5">Posts</p>
               </div>
 
-              <div className="text-center">
-                <p className="font-semibold">{user?.followersCount || 0}</p>
-                <p className="text-xs text-subtext">Followers</p>
+              <div className="text-center sm:text-left">
+                <p className="font-semibold text-base">{user?.followersCount || 0}</p>
+                <p className="text-xs text-subtext mt-0.5">Followers</p>
               </div>
 
-              <div className="text-center">
-                <p className="font-semibold">{user?.followingCount || 0}</p>
-                <p className="text-xs text-subtext">Following</p>
+              <div className="text-center sm:text-left">
+                <p className="font-semibold text-base">{user?.followingCount || 0}</p>
+                <p className="text-xs text-subtext mt-0.5">Following</p>
               </div>
+            </div>
+
+            {/* Follow / Edit — mobile position */}
+            <div className="sm:hidden mt-5">
+              {isMyProfile ? (
+                <button
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium
+                    bg-card border border-border text-text
+                    active:scale-[0.98] transition"
+                >
+                  <Pencil size={15} />
+                  Edit Profile
+                </button>
+              ) : (
+                <button
+                  onClick={handleFollow}
+                  className={`w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium
+                    active:scale-[0.98] transition
+                    ${user?.isFollowing
+                      ? "bg-card border border-border text-text"
+                      : "bg-primary text-white shadow-sm shadow-primary/30"
+                    }`}
+                >
+                  {user?.isFollowing ? (
+                    <>
+                      <UserCheck size={15} />
+                      Following
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus size={15} />
+                      Follow
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </motion.div>
 
-        {/* follow or edit */}
-        <div className="mt-6">
-          {isMyProfile ? (
-            <button
-              className="px-5 py-2 rounded-lg bg-card border border-border hover:bg-border transition"
-            >
-              Edit Profile
-            </button>
-          ) : (
-            <button
-              onClick={handleFollow}
-              className={`px-5 py-2 rounded-lg font-medium transition ${user?.isFollowing
-                ? "bg-card border border-border hover:bg-border"
-                : "bg-primary hover:bg-primary/90 text-white"
-                }`}
-            >
-              {user?.isFollowing ? "Following" : "Follow"}
-            </button>
-          )}
-        </div>
+        <div className="h-px bg-border/70 mb-6" />
 
         {/* 🔄 LOADING */}
         {loading ? (
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Skeleton key={i} className="aspect-square rounded-lg" />
+              <Skeleton key={i} className="aspect-square rounded-lg sm:rounded-xl" />
             ))}
           </div>
 
         ) : error ? (
-          <p className="text-center text-red-400">{error}</p>
+          <p className="text-center text-red-400 py-10">{error}</p>
 
         ) : posts.length === 0 ? (
-          <p className="text-center text-subtext">No posts yet </p>
+          <div className="text-center py-16">
+            <p className="text-subtext text-sm">No posts yet</p>
+          </div>
 
         ) : (
 
           /* 📸 POSTS GRID */
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
 
             {posts.map((post) => (
               <motion.div
                 key={post._id}
-                whileHover={{ scale: 1.05 }}
-                className="relative group w-full aspect-square rounded-lg overflow-hidden cursor-pointer"
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.2 }}
+                className="relative group w-full aspect-square rounded-lg sm:rounded-xl overflow-hidden cursor-pointer bg-card"
               >
                 {/* Image */}
                 <img
@@ -162,12 +223,15 @@ const Profile = () => {
                 />
 
                 {/* Hover Overlay */}
-                <div className="
-                  absolute inset-0 bg-black/50 opacity-0
-                  group-hover:opacity-100 transition
-                  flex items-center justify-center text-sm
-                ">
-                  ❤️ {post.likesCount || 0}
+                <div
+                  className="
+                    absolute inset-0 bg-black/50 opacity-0
+                    group-hover:opacity-100 transition
+                    flex items-center justify-center gap-1.5 text-sm font-medium text-white
+                  "
+                >
+                  <Heart size={16} className="fill-white" />
+                  {post.likesCount || 0}
                 </div>
               </motion.div>
             ))}

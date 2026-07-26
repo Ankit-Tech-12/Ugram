@@ -34,9 +34,9 @@ router.post("/logout", verifyJWT, userControllers.logOutUser);
 router.get("/me", verifyJWT, userControllers.getCurrentUser);
 
 router.patch(
-  "/me",
+  "/updateProfile",
   verifyJWT,
-  userControllers.updateAccountDetail
+  userControllers.updateProfile
 );
 
 router.patch(

@@ -180,16 +180,16 @@ const refreshToken = asyncHandler(async (req, res) => {
 // 👤 CURRENT USER
 // ─────────────────────────────────────────────
 const getCurrentUser = asyncHandler(async (req, res) => {
-  
+
   const safeUser = formatUser(req.user);
-  
+
   return res
     .status(200)
-    .json(new ApiResponse(200, safeUser , "Current user"));
+    .json(new ApiResponse(200, safeUser, "Current user"));
 });
 
 // targetUser
-const getTargetUser =asyncHandler(async (req , res ) => {
+const getTargetUser = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
   const user = await User.findById(userId);
@@ -201,28 +201,75 @@ const getTargetUser =asyncHandler(async (req , res ) => {
   const result = formatUser(user, req.user._id);
 
   res.status(200).json(
-    new ApiResponse(200 , result , "Profile Fetched of target user")
+    new ApiResponse(200, result, "Profile Fetched of target user")
   )
 });
 // ─────────────────────────────────────────────
 // ✏️ UPDATE PROFILE
 // ─────────────────────────────────────────────
-const updateAccountDetail = asyncHandler(async (req, res) => {
-  const { email, fullName } = req.body;
+const updateProfile = asyncHandler(async (req, res) => {
+  const { username, fullName, bio } = req.body;
 
-  if (!email || !fullName) {
-    throw new ApiError(400, "All fields required");
+  const updates = {};
+
+  // Update username
+  if (username !== undefined) {
+    const trimmedUsername = username.trim().toLowerCase();
+
+    if (!trimmedUsername) {
+      throw new ApiError(400, "Username cannot be empty");
+    }
+
+    // Only check if username has actually changed
+    if (trimmedUsername !== req.user.username) {
+      const existingUser = await User.findOne({
+        username: trimmedUsername,
+        _id: { $ne: req.user._id },
+      });
+
+      if (existingUser) {
+        throw new ApiError(409, "Username already exists");
+      }
+    }
+
+    updates.username = trimmedUsername;
+  }
+
+  // Update full name
+  if (fullName !== undefined) {
+    const trimmedFullName = fullName.trim();
+
+    if (!trimmedFullName) {
+      throw new ApiError(400, "Full name cannot be empty");
+    }
+
+    updates.fullName = trimmedFullName;
+  }
+
+  // Update bio (allow empty string to remove bio)
+  if (bio !== undefined) {
+    updates.bio = bio.trim();
+  }
+
+  // No fields to update
+  if (Object.keys(updates).length === 0) {
+    throw new ApiError(400, "No changes provided");
   }
 
   const user = await User.findByIdAndUpdate(
     req.user._id,
-    { $set: { email, fullName } },
-    { new: true }
-  ).select("-password");
+    {
+      $set: updates,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  ).select("-password -refreshToken");
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Updated"));
+  return res.status(200).json(
+    new ApiResponse(200, user, "Profile updated successfully")
+  );
 });
 
 // ─────────────────────────────────────────────
@@ -235,11 +282,15 @@ const updateProfileImage = asyncHandler(async (req, res) => {
 
   const uploaded = await uploadOnCloudinary(path);
 
+  if (!uploaded?.url) {
+    throw new ApiError(500, "Failed to upload profile image");
+  }
+
   const user = await User.findByIdAndUpdate(
     req.user._id,
     { $set: { profileImage: uploaded.url } },
     { new: true }
-  ).select("-password");
+  ).select("-password -refreshToken");
 
   return res
     .status(200)
@@ -298,28 +349,28 @@ const toggleFollowing = asyncHandler(async (req, res) => {
     currentUser.following.push(userId);
     targetUser.followers.push(currentUserId);
 
-  } else{
-  currentUser.following.pull(userId);
-  targetUser.followers.pull(currentUserId);
+  } else {
+    currentUser.following.pull(userId);
+    targetUser.followers.pull(currentUserId);
 
-}
+  }
 
   await currentUser.save({ validateBeforeSave: false });
   await targetUser.save({ validateBeforeSave: false });
-  
+
   return res.status(200).json(
-  new ApiResponse(
-    200,
-    {
-      isFollowing: !isFollowing,
-      followersCount: targetUser.followers.length,
-      followingCount: currentUser.following.length,
-    },
-    isFollowing
-      ? "User unfollowed successfully"
-      : "User followed successfully"
-  )
-);
+    new ApiResponse(
+      200,
+      {
+        isFollowing: !isFollowing,
+        followersCount: targetUser.followers.length,
+        followingCount: currentUser.following.length,
+      },
+      isFollowing
+        ? "User unfollowed successfully"
+        : "User followed successfully"
+    )
+  );
 });
 
 export {
@@ -328,7 +379,7 @@ export {
   logOutUser,
   refreshToken,
   getCurrentUser,
-  updateAccountDetail,
+  updateProfile,
   updateProfileImage,
   getUserProfile,
   toggleFollowing,

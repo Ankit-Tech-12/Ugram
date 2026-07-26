@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { UserPlus, UserCheck, Pencil, Heart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { toggleFollowing } from "../features/user/userSlice";
 import { getTargetUser } from "../features/user/userSlice";
@@ -13,6 +14,7 @@ const Profile = () => {
   // ✅ get user from Redux 
   const { userId } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const authUser = useSelector((state) => state.auth.user);
   const profile = useSelector((state) => state.users.profile);
@@ -91,6 +93,7 @@ const Profile = () => {
               <div className="hidden sm:block sm:ml-2">
                 {isMyProfile ? (
                   <button
+                    onClick={() => navigate("/settings/profile")}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium
                       bg-card border border-border text-text
                       hover:bg-border/60 active:scale-[0.97] transition"
@@ -151,6 +154,7 @@ const Profile = () => {
             <div className="sm:hidden mt-5">
               {isMyProfile ? (
                 <button
+                  onClick={() => navigate("/settings/profile")}
                   className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium
                     bg-card border border-border text-text
                     active:scale-[0.98] transition"

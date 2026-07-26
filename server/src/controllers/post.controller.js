@@ -124,12 +124,14 @@ const feeds = asyncHandler(async (req, res) => {
 // 👤 USER POSTS (PROFILE)
 // ─────────────────────────────────────────────
 const getUserFeeds = asyncHandler(async (req, res) => {
-  const userId = new mongoose.Types.ObjectId(req.user._id);
+  const {userId} = req.query;
+  const currentUserId = new mongoose.Types.ObjectId(req.user._id);
+  const owner = new mongoose.Types.ObjectId(userId || currentUserId);
 
   const pipeline = [
     {
       $match: {
-        owner: userId,
+        owner,
       },
     },
 
@@ -178,7 +180,7 @@ const getUserFeeds = asyncHandler(async (req, res) => {
       $addFields: {
         likesCount: { $size: { $ifNull: ["$likes", []] } },
         isLiked: {
-          $in: [userId, { $ifNull: ["$likes", []] }],
+          $in: [currentUserId, { $ifNull: ["$likes", []] }],
         },
       },
     },

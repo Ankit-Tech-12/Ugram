@@ -23,7 +23,7 @@ router.post(
 router.get("/", verifyJWT, feeds);
 
 // 👤 My posts
-router.get("/me", verifyJWT, getUserFeeds);
+router.get("/profile", verifyJWT, getUserFeeds);
 
 //Likes
 router.post("/:postId/like", verifyJWT, toggleLike);

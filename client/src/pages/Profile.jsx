@@ -6,7 +6,7 @@ import { UserPlus, UserCheck, Pencil, Heart } from "lucide-react";
 
 import { toggleFollowing } from "../features/user/userSlice";
 import { getTargetUser } from "../features/user/userSlice";
-import { getMyPosts } from "../features/post/postApi.js";
+import { getUserPosts } from "../features/post/postApi.js";
 import Skeleton from "../components/ui/Skeleton.jsx";
 
 const Profile = () => {
@@ -34,7 +34,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const data = await getMyPosts();
+        const data = await getUserPosts(userId);
         setPosts(data);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to load posts");
@@ -44,7 +44,7 @@ const Profile = () => {
     };
 
     fetchPosts();
-  }, []);
+  }, [userId]);
 
   const handleFollow = async () => {
     if (!user) return;
@@ -65,11 +65,11 @@ const Profile = () => {
         >
           {/* Profile Image */}
           <div className="relative shrink-0">
-            <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-primary/40 via-primary/10 to-transparent blur-md" />
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-primary/25 via-primary/10 to-transparent blur-md" />
             <img
               src={user?.profileImage}
               alt={user?.username || "profile"}
-              className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover ring-2 ring-primary/60 ring-offset-2 ring-offset-bg shadow-lg"
+              className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover ring-2 ring-primary/60 ring-offset-2 ring-offset-bg shadow-xl shadow-primary/10"
             />
           </div>
 

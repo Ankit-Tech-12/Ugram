@@ -22,11 +22,16 @@ export const getFeedPosts = async () => {
 };
 
 
-// 👤 GET MY POSTS
-export const getMyPosts = async () => {
-  const res = await api.get("/posts/me");
+// 👤 GET USER POSTS
+export const getUserPosts = async (userId = null) => {
 
-  return res.data?.data || [];
+    const url = userId
+        ? `/posts/profile?userId=${userId}`
+        : "/posts/profile";
+
+    const res = await api.get(url);
+
+    return res.data.data;
 };
 
 //LIKE AND UNLIKE

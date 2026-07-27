@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { Post } from "../models/post.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
@@ -280,6 +280,7 @@ const updateProfileImage = asyncHandler(async (req, res) => {
 
   if (!path) throw new ApiError(400, "Image required");
 
+  const oldProfileImage = req.user.profileImage;
   const uploaded = await uploadOnCloudinary(path);
 
   if (!uploaded?.url) {
@@ -292,9 +293,18 @@ const updateProfileImage = asyncHandler(async (req, res) => {
     { new: true }
   ).select("-password -refreshToken");
 
+  // console.log("Old Image:", oldProfileImage);
+
+  try {
+    const result = await deleteFromCloudinary(oldProfileImage);
+    // console.log("Delete Result:", result);
+  } catch (err) {
+    console.error("Delete Error:", err);
+  }
+
   return res
     .status(200)
-    .json(new ApiResponse(200, formatUser(user) , "Profile updated"));
+    .json(new ApiResponse(200, formatUser(user), "Profile updated"));
 });
 
 // ─────────────────────────────────────────────

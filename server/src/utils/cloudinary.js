@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import path from "path";
 
 // 🔐 Config
 cloudinary.config({
@@ -42,4 +43,23 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-export { uploadOnCloudinary };
+const deleteFromCloudinary = async (imageUrl) => {
+  try {
+    if (!imageUrl) return null;
+
+    const urlParts = imageUrl.split("/");
+    const fileName = urlParts[urlParts.length - 1];
+
+    // Removes extension (.jpg, .png, etc.)
+    const publicId = path.parse(fileName).name;
+
+    const result = await cloudinary.uploader.destroy(publicId);
+
+    return result;
+  } catch (error) {
+    console.error("Cloudinary delete error:", error);
+    throw error;
+  }
+};
+
+export { uploadOnCloudinary, deleteFromCloudinary };

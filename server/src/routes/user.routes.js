@@ -40,7 +40,7 @@ router.patch(
 );
 
 router.patch(
-  "/me/profile-image",
+  "/updateProfileImage",
   verifyJWT,
   upload.single("profileImage"),
   userControllers.updateProfileImage

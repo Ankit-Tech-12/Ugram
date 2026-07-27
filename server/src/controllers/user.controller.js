@@ -268,7 +268,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   ).select("-password -refreshToken");
 
   return res.status(200).json(
-    new ApiResponse(200, user, "Profile updated successfully")
+    new ApiResponse(200, formatUser(user), "Profile updated successfully")
   );
 });
 
@@ -294,7 +294,7 @@ const updateProfileImage = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, user, "Profile updated"));
+    .json(new ApiResponse(200, formatUser(user) , "Profile updated"));
 });
 
 // ─────────────────────────────────────────────

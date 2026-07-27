@@ -134,7 +134,7 @@ const UpdateProfile = () => {
             dispatch(setUser(updatedUser));
 
             toast.success("Profile updated successfully!");
-            navigate(`/profile/${updatedUser._id}`);
+            navigate(`/profile`);
 
             setProfileImage(null);
         } catch (error) {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import Button from "../components/ui/Button.jsx";
 import Input from "../components/ui/Input.jsx";
@@ -75,9 +76,14 @@ const CreatePost = () => {
       await createPost(formData);
 
       navigate("/");
+      toast.success("Successfully Created Post")
 
     } catch (err) {
       setError(err.response?.data?.message || "Upload failed");
+      toast.error(
+                      error?.response?.data?.message ||
+                      "Something went wrong."
+                  );
     } finally {
       setLoading(false);
     }

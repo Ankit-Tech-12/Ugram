@@ -60,6 +60,7 @@ const feeds = asyncHandler(async (req, res) => {
               username: 1,
               profileImage: 1,
               followers: 1,
+              fullName: 1,
             },
           },
         ],
@@ -146,6 +147,7 @@ const getUserFeeds = asyncHandler(async (req, res) => {
             $project: {
               username: 1,
               profileImage: 1,
+              fullName: 1,
             },
           },
         ],
@@ -226,4 +228,39 @@ const toggleLike = asyncHandler(async (req, res) => {
   );
 });
 
-export { uploadPost, feeds, getUserFeeds, toggleLike };
+const deletePost = asyncHandler(async (req, res) => {
+  const { postId } = req.params;
+
+  const post = await Post.findById(postId);
+
+  if (!post) {
+    throw new ApiError(404, "Post not found");
+  }
+
+  if (post.owner.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "Unauthorized");
+  }
+
+  // Try deleting image, but don't stop if it fails
+  if (post.image) {
+    try {
+      await deleteFromCloudinary(post.image);
+    } catch (error) {
+      console.error("Cloudinary delete failed:", error);
+    }
+  }
+
+  await post.deleteOne();
+
+  return res.status(200).json(
+    new ApiResponse(200, {}, "Post deleted successfully")
+  );
+});
+
+export { 
+  uploadPost, 
+  feeds, 
+  getUserFeeds, 
+  toggleLike,
+  deletePost 
+};

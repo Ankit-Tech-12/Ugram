@@ -12,6 +12,10 @@ export const createPost = async (formData) => {
   return res.data.data;
 };
 
+// Delete post
+export const deletePost = (postId) =>
+    api.delete(`/posts/${postId}/deletePost`);
+
 
 // 📰 GET FEED POSTS (other users)
 export const getFeedPosts = async () => {

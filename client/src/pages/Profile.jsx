@@ -7,8 +7,9 @@ import { useNavigate } from "react-router-dom";
 
 import { toggleFollowing } from "../features/user/userSlice";
 import { getTargetUser } from "../features/user/userSlice";
-import { getUserPosts } from "../features/post/postApi.js";
+import { fetchProfilePosts } from "../features/post/postSlice";
 import Skeleton from "../components/ui/Skeleton.jsx";
+import PostModal from "../components/post/PostModal.jsx";
 
 const Profile = () => {
   // ✅ get user from Redux 
@@ -18,13 +19,20 @@ const Profile = () => {
 
   const authUser = useSelector((state) => state.auth.user);
   const profile = useSelector((state) => state.users.profile);
+  const { profilePosts: posts, loading, error } = useSelector(
+    (state) => state.post
+  );
 
   const user = userId ? profile : authUser;
   const isMyProfile = authUser?._id === user?._id;
+  const [selectedPostId, setSelectedPostId] = useState(null);
 
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const selectedPost = posts.find(
+    (post) => post._id === selectedPostId
+  );
+  // const [posts, setPosts] = useState([]);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState("");
 
   useEffect(() => {
     if (userId) {
@@ -32,21 +40,17 @@ const Profile = () => {
     }
   }, [dispatch, userId]);
 
+
   // 🔄 fetch posts 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const data = await getUserPosts(userId);
-        setPosts(data);
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to load posts");
-      } finally {
-        setLoading(false);
-      }
-    };
+    const targetUserId = userId || authUser?._id;
 
-    fetchPosts();
-  }, [userId]);
+    if (targetUserId) {
+      dispatch(fetchProfilePosts(targetUserId));
+    }
+  }, [dispatch, userId, authUser]);
+
+
 
   const handleFollow = async () => {
     if (!user) return;
@@ -215,6 +219,7 @@ const Profile = () => {
             {posts.map((post) => (
               <motion.div
                 key={post._id}
+                onClick={() => setSelectedPostId(post._id)}
                 whileHover={{ scale: 1.03 }}
                 transition={{ duration: 0.2 }}
                 className="relative group w-full aspect-square rounded-lg sm:rounded-xl overflow-hidden cursor-pointer bg-card"
@@ -239,10 +244,13 @@ const Profile = () => {
                 </div>
               </motion.div>
             ))}
-
           </div>
         )}
-
+        <PostModal
+          post={selectedPost}
+          isOpen={!!selectedPost}
+          onClose={() => setSelectedPostId(null)}
+        />
       </div>
     </div>
   );

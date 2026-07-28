@@ -16,6 +16,21 @@ export const fetchFeedPosts = createAsyncThunk(
   }
 );
 
+// FETCH USER POST
+export const fetchProfilePosts = createAsyncThunk(
+  "post/fetchProfilePosts",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/posts/profile?userId=${userId}`);
+      return res.data.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load posts"
+      );
+    }
+  }
+);
+
 // ❤️ TOGGLE LIKE (API)
 export const toggleLikePost = createAsyncThunk(
   "post/toggleLikePost",
@@ -37,18 +52,37 @@ export const toggleLikePost = createAsyncThunk(
   }
 );
 
+export const deletePost = createAsyncThunk(
+  "post/deletePost",
+  async (postId, { rejectWithValue }) => {
+    try {
+      await api.delete(`/posts/${postId}/deletePost`);
+      return postId;
+    } catch (err) {
+      return rejectWithValue({
+        postId,
+        message: err.response?.data?.message || "Post deletion failed",
+      });
+    }
+  });
+
+
 const postSlice = createSlice({
   name: "post",
   initialState: {
     posts: [],
+    profilePosts: [],
     loading: false,
+    deleting: false,
     error: null,
   },
 
   reducers: {
     // ⚡ OPTIMISTIC LIKE
     toggleLikeLocal: (state, action) => {
-      const post = state.posts.find((p) => p._id === action.payload);
+      const post =
+        state.posts.find((p) => p._id === action.payload) ||
+        state.profilePosts.find((p) => p._id === action.payload);
 
       if (!post) return;
 
@@ -65,6 +99,12 @@ const postSlice = createSlice({
           post.owner.isFollowing = !post.owner.isFollowing;
         }
       });
+
+      state.profilePosts.forEach((post) => {
+        if (post.owner?._id === userId) {
+          post.owner.isFollowing = !post.owner.isFollowing;
+        }
+      })
     },
   },
 
@@ -87,11 +127,29 @@ const postSlice = createSlice({
         state.error = action.payload;
       })
 
+      //USER PROFILE POST
+      .addCase(fetchProfilePosts.pending, (state, action) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(fetchProfilePosts.fulfilled, (state, action) => {
+        state.loading = false
+        state.profilePosts = action.payload;
+      })
+
+      .addCase(fetchProfilePosts.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload;
+      })
+
       // ❤️ LIKE SUCCESS (SYNC WITH BACKEND)
       .addCase(toggleLikePost.fulfilled, (state, action) => {
         const { postId, liked, likesCount } = action.payload;
 
-        const post = state.posts.find((p) => p._id === postId);
+        const post =
+          state.posts.find((p) => p._id === postId) ||
+          state.profilePosts.find((p) => p._id === postId);
 
         if (!post) return;
 
@@ -103,7 +161,9 @@ const postSlice = createSlice({
       .addCase(toggleLikePost.rejected, (state, action) => {
         const { postId } = action.payload || {};
 
-        const post = state.posts.find((p) => p._id === postId);
+        const post = 
+        state.posts.find((p) => p._id === postId) ||
+        state.profilePosts.find((p) => p._id === postId);
 
         if (!post) return;
 
@@ -111,6 +171,29 @@ const postSlice = createSlice({
 
         post.isLiked = revertedLiked;
         post.likesCount += revertedLiked ? 1 : -1;
+      })
+
+      // Deleting post
+      .addCase(deletePost.pending, (state) => {
+        state.deleting = true;
+      })
+
+      .addCase(deletePost.fulfilled, (state, action) => {
+        state.deleting = false;
+
+        state.posts = state.posts.filter(
+          (post) => post._id !== action.payload
+        );
+
+        state.profilePosts = state.profilePosts.filter(
+          (post) => post._id !== action.payload
+        );
+      })
+
+      .addCase(deletePost.rejected, (state, action) => {
+        state.deleting = false;
+        state.error =
+          action.payload?.message || "Failed to delete post";
       });
   },
 });

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart, X, MoreVertical, Trash2 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
-import { deletePost } from "../../features/post/postSlice";
+import { deletePost, toggleLikePost } from "../../features/post/postSlice";
 
 const PostModal = ({ post, isOpen, onClose }) => {
 
@@ -30,6 +30,9 @@ const PostModal = ({ post, isOpen, onClose }) => {
 
     const isOwner = authUser?._id === post.owner?._id;
 
+    const handleLike = () => {
+        dispatch(toggleLikePost(post._id));
+    };
 
     const handleDelete = async () => {
         const confirmed = window.confirm(
@@ -136,16 +139,21 @@ const PostModal = ({ post, isOpen, onClose }) => {
                             {/* Footer */}
                             <div className="border-t border-border p-5">
                                 <div className="flex items-center gap-2">
-                                    <Heart
-                                        className={`${post.isLiked
-                                            ? "fill-red-500 text-red-500"
-                                            : "text-text"
-                                            }`}
-                                        size={22}
-                                    />
+                                    <button
+                                        onClick={handleLike}
+                                        className="transition-transform active:scale-90 hover:scale-110"
+                                    >
+                                        <Heart
+                                            size={24}
+                                            className={`transition-colors ${post.isLiked
+                                                    ? "fill-red-500 text-red-500"
+                                                    : "text-text hover:text-red-500"
+                                                }`}
+                                        />
+                                    </button>
 
-                                    <span className="font-medium text-text">
-                                        {post.likesCount || 0}
+                                    <span className="font-medium">
+                                        {post.likesCount}
                                     </span>
 
                                     <span className="text-subtext">

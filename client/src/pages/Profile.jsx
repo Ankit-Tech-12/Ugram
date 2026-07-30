@@ -26,6 +26,7 @@ const Profile = () => {
   const user = userId ? profile : authUser;
   const isMyProfile = authUser?._id === user?._id;
   const [selectedPostId, setSelectedPostId] = useState(null);
+  const targetUserId = userId || authUser?._id;
 
   const selectedPost = posts.find(
     (post) => post._id === selectedPostId
@@ -48,7 +49,7 @@ const Profile = () => {
     if (targetUserId) {
       dispatch(fetchProfilePosts(targetUserId));
     }
-  }, [dispatch, userId, authUser]);
+  }, [dispatch, targetUserId]);
 
 
 

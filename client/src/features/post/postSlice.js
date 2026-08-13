@@ -144,26 +144,51 @@ const postSlice = createSlice({
       })
 
       // ❤️ LIKE SUCCESS (SYNC WITH BACKEND)
+      // .addCase(toggleLikePost.fulfilled, (state, action) => {
+      //    console.log("LIKE PAYLOAD:", action.payload);
+      //   const { postId, liked, likesCount } = action.payload;
+
+      //   const post =
+      //     state.posts.find((p) => p._id === postId) ||
+      //     state.profilePosts.find((p) => p._id === postId);
+      //     console.log("FOUND POST:", post);
+
+      //   if (!post) return;
+
+      //   post.isLiked = liked;
+      //   post.likesCount = likesCount;
+      // })
       .addCase(toggleLikePost.fulfilled, (state, action) => {
         const { postId, liked, likesCount } = action.payload;
 
-        const post =
-          state.posts.find((p) => p._id === postId) ||
-          state.profilePosts.find((p) => p._id === postId);
+        state.profilePosts = state.profilePosts.map((post) =>
+          post._id === postId
+            ? {
+              ...post,
+              isLiked: liked,
+              likesCount,
+            }
+            : post
+        );
 
-        if (!post) return;
-
-        post.isLiked = liked;
-        post.likesCount = likesCount;
+        state.posts = state.posts.map((post) =>
+          post._id === postId
+            ? {
+              ...post,
+              isLiked: liked,
+              likesCount,
+            }
+            : post
+        );
       })
 
       // ❌ LIKE FAILED → REVERT OPTIMISTIC
       .addCase(toggleLikePost.rejected, (state, action) => {
         const { postId } = action.payload || {};
 
-        const post = 
-        state.posts.find((p) => p._id === postId) ||
-        state.profilePosts.find((p) => p._id === postId);
+        const post =
+          state.posts.find((p) => p._id === postId) ||
+          state.profilePosts.find((p) => p._id === postId);
 
         if (!post) return;
 
@@ -173,29 +198,29 @@ const postSlice = createSlice({
         post.likesCount += revertedLiked ? 1 : -1;
       })
 
-      // Deleting post
-      .addCase(deletePost.pending, (state) => {
-        state.deleting = true;
-      })
+    // Deleting post
+    .addCase(deletePost.pending, (state) => {
+      state.deleting = true;
+    })
 
-      .addCase(deletePost.fulfilled, (state, action) => {
-        state.deleting = false;
+    .addCase(deletePost.fulfilled, (state, action) => {
+      state.deleting = false;
 
-        state.posts = state.posts.filter(
-          (post) => post._id !== action.payload
-        );
+      state.posts = state.posts.filter(
+        (post) => post._id !== action.payload
+      );
 
-        state.profilePosts = state.profilePosts.filter(
-          (post) => post._id !== action.payload
-        );
-      })
+      state.profilePosts = state.profilePosts.filter(
+        (post) => post._id !== action.payload
+      );
+    })
 
-      .addCase(deletePost.rejected, (state, action) => {
-        state.deleting = false;
-        state.error =
-          action.payload?.message || "Failed to delete post";
-      });
-  },
+    .addCase(deletePost.rejected, (state, action) => {
+      state.deleting = false;
+      state.error =
+        action.payload?.message || "Failed to delete post";
+    });
+},
 });
 
 export const {

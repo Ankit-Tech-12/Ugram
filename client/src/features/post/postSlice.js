@@ -52,6 +52,7 @@ export const toggleLikePost = createAsyncThunk(
   }
 );
 
+// DELTE POST
 export const deletePost = createAsyncThunk(
   "post/deletePost",
   async (postId, { rejectWithValue }) => {

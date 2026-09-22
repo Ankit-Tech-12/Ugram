@@ -32,9 +32,8 @@ const formatUser = (user, currentUserId = null) => {
   };
 };
 
-// ─────────────────────────────────────────────
-// 🔐 TOKEN GENERATION
-// ─────────────────────────────────────────────
+
+// TOKEN GENERATION
 const generateTokens = async (userId) => {
   const user = await User.findById(userId);
 
@@ -49,9 +48,8 @@ const generateTokens = async (userId) => {
   return { accessToken, refreshToken };
 };
 
-// ─────────────────────────────────────────────
-// 📝 REGISTER
-// ─────────────────────────────────────────────
+
+// REGISTER
 const registerUser = asyncHandler(async (req, res) => {
   const { fullName, email, username, password } = req.body;
 
@@ -90,9 +88,8 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, createdUser, "User registered"));
 });
 
-// ─────────────────────────────────────────────
-// 🔑 LOGIN
-// ─────────────────────────────────────────────
+
+// LOGIN
 const logInUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -125,9 +122,8 @@ const logInUser = asyncHandler(async (req, res) => {
     );
 });
 
-// ─────────────────────────────────────────────
-// 🚪 LOGOUT
-// ─────────────────────────────────────────────
+
+// LOGOUT
 const logOutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(req.user._id, {
     $unset: { refreshToken: "" },
@@ -140,9 +136,8 @@ const logOutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Logged out"));
 });
 
-// ─────────────────────────────────────────────
-// 🔄 REFRESH TOKEN
-// ─────────────────────────────────────────────
+
+// REFRESH TOKEN
 const refreshToken = asyncHandler(async (req, res) => {
   const token =
     req.cookies?.refreshToken || req.body?.refreshToken;
@@ -176,9 +171,8 @@ const refreshToken = asyncHandler(async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// 👤 CURRENT USER
-// ─────────────────────────────────────────────
+
+// CURRENT USER
 const getCurrentUser = asyncHandler(async (req, res) => {
 
   const safeUser = formatUser(req.user);
@@ -187,6 +181,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, safeUser, "Current user"));
 });
+
 
 // targetUser
 const getTargetUser = asyncHandler(async (req, res) => {
@@ -204,9 +199,9 @@ const getTargetUser = asyncHandler(async (req, res) => {
     new ApiResponse(200, result, "Profile Fetched of target user")
   )
 });
-// ─────────────────────────────────────────────
-// ✏️ UPDATE PROFILE
-// ─────────────────────────────────────────────
+
+
+// UPDATE PROFILE
 const updateProfile = asyncHandler(async (req, res) => {
   const { username, fullName, bio } = req.body;
 
@@ -272,9 +267,8 @@ const updateProfile = asyncHandler(async (req, res) => {
   );
 });
 
-// ─────────────────────────────────────────────
-// 📸 UPDATE PROFILE IMAGE
-// ─────────────────────────────────────────────
+
+// UPDATE PROFILE IMAGE
 const updateProfileImage = asyncHandler(async (req, res) => {
   const path = req.file?.path;
 
@@ -307,9 +301,8 @@ const updateProfileImage = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, formatUser(user), "Profile updated"));
 });
 
-// ─────────────────────────────────────────────
-// 🔍 USER PROFILE
-// ─────────────────────────────────────────────
+
+//  USER PROFILE
 const getUserProfile = asyncHandler(async (req, res) => {
   const { username } = req.params;
 

@@ -6,7 +6,8 @@ import { upload } from "../middlewares/multer.middleware.js";
 
 const router = Router();
 
-// 📸 Create Post
+
+// Create Post
 router.post(
   "/",
   verifyJWT,
@@ -14,14 +15,18 @@ router.post(
   postControllers.uploadPost
 );
 
+
 // Delete Post
 router.delete("/:postId/deletePost",verifyJWT ,postControllers.deletePost)
 
-// 📰 Feed (other users)
+
+// Feed (other users)
 router.get("/", verifyJWT, postControllers.feeds);
 
-// 👤 My posts
+
+// My posts
 router.get("/profile", verifyJWT, postControllers.getUserFeeds);
+
 
 //Likes
 router.post("/:postId/like", verifyJWT, postControllers.toggleLike);

@@ -5,10 +5,8 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-// ─────────────────────────────────────────────
-// 🔐 AUTH ROUTES
-// ─────────────────────────────────────────────
 
+// AUTH ROUTES
 router.post(
   "/register",
   upload.fields([
@@ -27,18 +25,20 @@ router.post("/logout", verifyJWT, userControllers.logOutUser);
 //   res.send("User route working");
 // });
 
-// ─────────────────────────────────────────────
-// 👤 CURRENT USER (ME)
-// ─────────────────────────────────────────────
 
+// CURRENT USER (ME)
 router.get("/me", verifyJWT, userControllers.getCurrentUser);
 
+
+// PROFILE UPDATING
 router.patch(
   "/updateProfile",
   verifyJWT,
   userControllers.updateProfile
 );
 
+
+// PROFILE DP UPDATING
 router.patch(
   "/updateProfileImage",
   verifyJWT,
@@ -47,15 +47,13 @@ router.patch(
 );
 
 
-// ─────────────────────────────────────────────
-// 🔍 PUBLIC PROFILE
-// ─────────────────────────────────────────────
-
+// PUBLIC PROFILE
 router.get(
   "/profile/:username",
   verifyJWT, // optional: you can remove this if public
   userControllers.getUserProfile
 );
+
 
 // Target user
 router.get(
@@ -63,6 +61,7 @@ router.get(
   verifyJWT,
   userControllers.getTargetUser
 )
+
 
 //Follow or unfollow
 router.patch(
